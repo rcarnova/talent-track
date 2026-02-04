@@ -1113,22 +1113,37 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate }) {
       >
         {/* Header */}
         <div style={{ marginBottom: 32 }}>
+          {/* CVE Logo */}
           <div
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: 6,
-              background: T.ai.bg,
-              border: `1px solid ${T.ai.color}22`,
-              borderRadius: 20,
-              padding: "5px 12px",
+              justifyContent: "center",
+              background: "#1A1A1A",
+              borderRadius: 12,
+              padding: "10px 16px",
               marginBottom: 16,
             }}
           >
-            <span style={{ fontSize: 13, color: T.ai.color }}>✦</span>
-            <span style={{ fontSize: 11.5, fontWeight: 600, color: T.ai.color }}>
-              {isFirstTime ? "Setup iniziale" : "Modifica team"}
-            </span>
+            <img src={cveLogo} alt="CVE" style={{ height: 28, objectFit: "contain" }} />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                background: T.ai.bg,
+                border: `1px solid ${T.ai.color}22`,
+                borderRadius: 20,
+                padding: "5px 12px",
+              }}
+            >
+              <span style={{ fontSize: 13, color: T.ai.color }}>✦</span>
+              <span style={{ fontSize: 11.5, fontWeight: 600, color: T.ai.color }}>
+                {isFirstTime ? "Setup iniziale" : "Modifica team"}
+              </span>
+            </div>
           </div>
           <h1
             style={{
