@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import cveLogo from "@/assets/cve-logo.png";
+import { useTeams, usePeople, useBehaviors } from '@/hooks/useBaseData';
+import { useFeatureFlags } from '@/hooks/useFeatureFlags';
 import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
 import "@fontsource/inter/600.css";
@@ -1438,6 +1440,16 @@ export default function App() {
   const [teamValidated, setTeamValidated] = useState(false);
   const [hasEverValidated, setHasEverValidated] = useState(false);
   const [activeTeam, setActiveTeam] = useState(TEAM); // team attivo dopo validazione
+
+  // ── Supabase data ──────────────────────────────────────────────────────────
+  const { data: teams, isLoading: teamsLoading } = useTeams();
+  const { data: people, isLoading: peopleLoading } = usePeople();
+  const { data: behaviors, isLoading: behaviorsLoading } = useBehaviors();
+  const { data: features, isLoading: featuresLoading } = useFeatureFlags();
+
+  if (teamsLoading || peopleLoading || behaviorsLoading || featuresLoading) {
+    return <div className="flex items-center justify-center h-screen">Caricamento dati...</div>;
+  }
 
   const handleTeamValidate = (selectedIds) => {
     const validated = ORG_ALL.filter((p) => selectedIds.includes(p.id));
