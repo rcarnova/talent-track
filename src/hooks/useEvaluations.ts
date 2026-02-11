@@ -132,3 +132,71 @@ export function useSaveNote() {
     },
   });
 }
+
+// ─── Fetch notes for a specific behavior ─────────────────────────────────────
+
+export function useBehaviorNotes(personId: string | null, behaviorId: string | null) {
+  return useQuery({
+    queryKey: ["behavior-notes", personId, behaviorId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("behavior_notes")
+        .select("*")
+        .eq("person_id", personId!)
+        .eq("behavior_id", behaviorId!)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as {
+        id: string;
+        person_id: string;
+        behavior_id: string;
+        text: string;
+        author_id: string;
+        level: EvalLevel;
+        created_at: string;
+      }[];
+    },
+    enabled: !!personId && !!behaviorId,
+  });
+}
+
+// ─── Save a new behavior note ────────────────────────────────────────────────
+
+export function useSaveBehaviorNote() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      personId,
+      behaviorId,
+      text,
+      authorId,
+      level,
+    }: {
+      personId: string;
+      behaviorId: string;
+      text: string;
+      authorId: string;
+      level: EvalLevel;
+    }) => {
+      const { data, error } = await supabase
+        .from("behavior_notes")
+        .insert({
+          person_id: personId,
+          behavior_id: behaviorId,
+          text,
+          author_id: authorId,
+          level,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["behavior-notes", variables.personId, variables.behaviorId],
+      });
+    },
+  });
+}
