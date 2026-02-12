@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import cveLogo from "@/assets/cve-logo.png";
 import { useTeams, usePeople, useBehaviors } from '@/hooks/useBaseData';
 import { useFeatureFlags } from '@/hooks/useFeatureFlags';
+import { useSaveEvaluation } from '@/hooks/useEvaluations';
 import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
 import "@fontsource/inter/600.css";
@@ -1441,6 +1442,8 @@ export default function App() {
   const [hasEverValidated, setHasEverValidated] = useState(false);
   const [activeTeam, setActiveTeam] = useState(TEAM); // team attivo dopo validazione
 
+  const { mutate: saveEvaluation } = useSaveEvaluation();
+
   // ── Supabase data ──────────────────────────────────────────────────────────
   const { data: teams, isLoading: teamsLoading, error: teamsError } = useTeams();
   const { data: people, isLoading: peopleLoading, error: peopleError } = usePeople();
@@ -1493,7 +1496,15 @@ export default function App() {
   };
 
   const handleEvalChange = (behaviorId, level) => {
+    // Aggiornamento UI immediato (optimistic)
     setEvals((prev) => ({ ...prev, [selectedPerson]: { ...prev[selectedPerson], [behaviorId]: level } }));
+    // Persistenza su Supabase
+    saveEvaluation({
+      personId: selectedPerson,
+      behaviorId,
+      level,
+      evaluatedBy: "11111111-1111-1111-1111-000000000001", // Laura Bianchi, manager Admin
+    });
   };
 
   const handleEmployeeNote = (behaviorId, text) => {
