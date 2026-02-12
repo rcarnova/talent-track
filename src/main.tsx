@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.tsx";
 import "./index.css";
 import "@fontsource/inter/400.css";
@@ -9,4 +10,10 @@ import "@fontsource/sora/400.css";
 import "@fontsource/sora/600.css";
 import "@fontsource/sora/700.css";
 
-createRoot(document.getElementById("root")!).render(<App />);
+const queryClient = new QueryClient();
+
+createRoot(document.getElementById("root")!).render(
+  <QueryClientProvider client={queryClient}>
+    <App />
+  </QueryClientProvider>
+);
