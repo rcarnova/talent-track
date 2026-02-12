@@ -1442,13 +1442,20 @@ export default function App() {
   const [activeTeam, setActiveTeam] = useState(TEAM); // team attivo dopo validazione
 
   // ── Supabase data ──────────────────────────────────────────────────────────
-  const { data: teams, isLoading: teamsLoading } = useTeams();
-  const { data: people, isLoading: peopleLoading } = usePeople();
-  const { data: behaviors, isLoading: behaviorsLoading } = useBehaviors();
-  const { data: features, isLoading: featuresLoading } = useFeatureFlags();
+  const { data: teams, isLoading: teamsLoading, error: teamsError } = useTeams();
+  const { data: people, isLoading: peopleLoading, error: peopleError } = usePeople();
+  const { data: behaviors, isLoading: behaviorsLoading, error: behaviorsError } = useBehaviors();
+  const { data: features, isLoading: featuresLoading, error: featuresError } = useFeatureFlags();
 
-  if (teamsLoading || peopleLoading || behaviorsLoading || featuresLoading) {
-    return <div className="flex items-center justify-center h-screen">Caricamento dati...</div>;
+  const supabaseLoading = teamsLoading || peopleLoading || behaviorsLoading || featuresLoading;
+  const supabaseError = teamsError || peopleError || behaviorsError || featuresError;
+
+  if (supabaseLoading) {
+    return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", fontFamily: T.fontBody, color: T.textMuted }}>Caricamento dati...</div>;
+  }
+
+  if (supabaseError) {
+    console.warn("Supabase non disponibile, uso dati demo:", supabaseError);
   }
 
   const handleTeamValidate = (selectedIds) => {
