@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
+const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY);
 import cveLogo from "@/assets/cve-logo.png";
 import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
@@ -1423,8 +1425,9 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate }) {
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 export default function App() {
+  export default function App() {
   const [role, setRole] = useState("manager");
-  const [screen, setScreen] = useState("home"); // home | profile | behaviors | team
+  const [screen, setScreen] = useState("home");
   const [selectedPerson, setSelectedPerson] = useState("chiara");
   const [quickNote, setQuickNote] = useState(false);
   const [quickNoteContext, setQuickNoteContext] = useState<{ person?: string; behavior?: string }>({});
@@ -1434,16 +1437,58 @@ export default function App() {
   const [employeeNotes, setEmployeeNotes] = useState({});
   const [profileOk, setProfileOk] = useState({ manager: false, employee: false });
 
-  // ── Team validation (primo accesso manager) ──────────────────────────────
-  const [teamValidated, setTeamValidated] = useState(false);
-  const [hasEverValidated, setHasEverValidated] = useState(false);
-  const [activeTeam, setActiveTeam] = useState(TEAM); // team attivo dopo validazione
+  const [managers, setManagers] = useState<{id: string, name: string}[]>([]);
+  const [currentManagerId, setCurrentManagerId] = useState<string | null>(
+    () => localStorage.getItem("talent_track_manager_id")
+  );
+  const [managerPickerVisible, setManagerPickerVisible] = useState(!localStorage.getItem("talent_track_manager_id"));
 
-  const handleTeamValidate = (selectedIds) => {
+  useEffect(() => {
+    supabase
+      .from("people")
+      .select("id, name")
+      .eq("is_manager", true)
+      .then(({ data }) => { if (data) setManagers(data); });
+  }, []);
+
+  const handleSelectManager = (id: string) => {
+    localStorage.setItem("talent_track_manager_id", id);
+    setCurrentManagerId(id);
+    setManagerPickerVisible(false);
+  };
+
+  if (managerPickerVisible) {
+    return (
+      <div style={{ maxWidth: 400, margin: "80px auto", padding: 24, fontFamily: T.fontBody }}>
+        <div style={{ background: "#1A1A1A", borderRadius: 12, padding: "10px 16px", marginBottom: 24, display: "inline-flex" }}>
+          <img src={cveLogo} alt="CVE" style={{ height: 28 }} />
+        </div>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: T.text, marginBottom: 8 }}>Chi sei?</h2>
+        <p style={{ fontSize: 14, color: T.textMuted, marginBottom: 24 }}>Seleziona il tuo nome per continuare.</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {managers.map(m => (
+            <button key={m.id} onClick={() => handleSelectManager(m.id)}
+              style={{ padding: "14px 18px", borderRadius: 12, border: `1.5px solid ${T.border}`, background: T.surface, fontSize: 15, fontWeight: 600, color: T.text, cursor: "pointer", textAlign: "left" }}>
+              {m.name}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const handleTeamValidate = async (selectedIds) => {
     const validated = ORG_ALL.filter((p) => selectedIds.includes(p.id));
     setActiveTeam(validated);
     setTeamValidated(true);
     setHasEverValidated(true);
+
+    if (currentManagerId) {
+      await supabase.from("team_confirmations").insert({
+        manager_id: currentManagerId,
+        confirmed_team: selectedIds,
+      });
+    }
   };
 
   // Se il manager non ha ancora validato il team, mostra la schermata di validazione
