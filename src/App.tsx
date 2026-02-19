@@ -48,10 +48,11 @@ const T = {
   radiusLg: 16,
 };
 
-// ─── DATA ─────────────────────────────────────────────────────────────────────
+// ─── DATA (demo fallback) ────────────────────────────────────────────────────
 
-// Organizzazione completa caricata da Excel (simulata) — Team amministrazione CVE
-const ORG_ALL = [
+// Dati demo usati come fallback se Supabase non è disponibile
+// Queste variabili vengono sovrascritte con dati Supabase dentro App() quando disponibili
+let ORG_ALL = [
   { id: "chiara", name: "Chiara Bonfanti", initials: "CB", role: "Payroll Specialist", department: "Amministrazione" },
   { id: "elena", name: "Elena Marchetti", initials: "EM", role: "Accounts Payable", department: "Amministrazione" },
   {
@@ -72,7 +73,7 @@ const ORG_ALL = [
 ];
 
 // Il team di Dalila pre-suggerito dal sistema basato sulla struttura
-const SUGGESTED_TEAM = ["chiara", "elena", "francesca", "giulia", "sofia"];
+let SUGGESTED_TEAM = ["chiara", "elena", "francesca", "giulia", "sofia"];
 
 let TEAM = [
   { id: "chiara", name: "Chiara Bonfanti", initials: "CB", role: "Payroll Specialist" },
@@ -80,7 +81,7 @@ let TEAM = [
   { id: "francesca", name: "Francesca Colombo", initials: "FC", role: "Accounts Receivable" },
 ];
 
-const BEHAVIORS = [
+let BEHAVIORS = [
   {
     id: "comportamento_1",
     name: "Comportamento 1",
@@ -1459,6 +1460,33 @@ export default function App() {
 
   if (supabaseError) {
     console.warn("Supabase non disponibile, uso dati demo:", supabaseError);
+  }
+
+  // ── Mapping Supabase → struttura app (sovrascrive globali, fallback demo) ──
+  if (people && !supabaseError) {
+    ORG_ALL = people.map(p => ({
+      id: p.id,
+      name: p.name,
+      initials: p.name.split(' ').map(n => n[0]).join(''),
+      role: p.role,
+      department: p.department,
+    }));
+    TEAM = people.filter(p => !p.is_manager).map(p => ({
+      id: p.id,
+      name: p.name,
+      initials: p.name.split(' ').map(n => n[0]).join(''),
+      role: p.role,
+    }));
+    SUGGESTED_TEAM = people.filter(p => !p.is_manager).map(p => p.id);
+  }
+  if (behaviors && !supabaseError) {
+    BEHAVIORS = behaviors.map(b => ({
+      id: b.id,
+      name: b.name,
+      category: b.type === 'core' ? 'dna' : 'team',
+      description: b.description || '',
+      indicators: b.indicators || [],
+    }));
   }
 
   const handleTeamValidate = (selectedIds) => {
