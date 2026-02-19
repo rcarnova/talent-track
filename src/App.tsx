@@ -1496,6 +1496,7 @@ export default function App() {
   };
 
   const handleEvalChange = (behaviorId, level) => {
+    console.log('Salvando valutazione:', { personId: selectedPerson, behaviorId, level });
     // Aggiornamento UI immediato (optimistic)
     setEvals((prev) => ({ ...prev, [selectedPerson]: { ...prev[selectedPerson], [behaviorId]: level } }));
     // Persistenza su Supabase
