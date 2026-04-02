@@ -1511,7 +1511,7 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate }) {
     if (currentManagerId) {
       await supabase.from("team_confirmations").insert({
         manager_id: currentManagerId,
-        confirmed_team: selectedIds,
+        confirmed_team: activeTeam.map(p => p.id),
       });
     }
   };
