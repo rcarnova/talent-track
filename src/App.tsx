@@ -1454,6 +1454,28 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate }) {
       .then(({ data }) => { if (data) setManagers(data); });
   }, []);
 
+    useEffect(() => {
+        supabase
+          .from("people")
+          .select("id, name, role")
+          .not("role", "in", '("manager","ceo")')
+          .then(({ data }) => {
+                  if (data && data.length > 0) {
+                            const members = data.map(p => ({
+                                        id: p.id,
+                                        name: p.name,
+                                        initials: p.name.split(' ').map((n: string) => n[0]).join(''),
+                                        role: p.role,
+                            }));
+                            setActiveTeam(members);
+                            setSelectedPerson(prev => {
+                                        const match = data.find(p => p.id === prev);
+                                        return match ? prev : members[0].id;
+                            });
+                  }
+          });
+    }, []);
+
   const handleSelectManager = (id: string) => {
     localStorage.setItem("talent_track_manager_id", id);
     setCurrentManagerId(id);
