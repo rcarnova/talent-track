@@ -1429,7 +1429,7 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate }) {
 export default function App() {
   const [role, setRole] = useState("manager");
   const [screen, setScreen] = useState("home"); // home | profile | behaviors | team
-  const [selectedPerson, setSelectedPerson] = useState("chiara");
+  const [selectedPerson, setSelectedPerson] = useState(() => TEAM[0]?.id || "chiara");
   const [quickNote, setQuickNote] = useState(false);
   const [quickNoteContext, setQuickNoteContext] = useState<{ person?: string; behavior?: string }>({});
   const [historyOpen, setHistoryOpen] = useState(null);
@@ -1453,6 +1453,16 @@ export default function App() {
 
   const supabaseLoading = teamsLoading || peopleLoading || behaviorsLoading || featuresLoading;
   const supabaseError = teamsError || peopleError || behaviorsError || featuresError;
+
+  // Aggiorna selectedPerson con il primo UUID valido quando i dati Supabase arrivano
+  useEffect(() => {
+    if (people && !supabaseError) {
+      const firstMember = people.find(p => !p.is_manager);
+      if (firstMember && selectedPerson === "chiara") {
+        setSelectedPerson(firstMember.id);
+      }
+    }
+  }, [people, supabaseError]);
 
   if (supabaseLoading) {
     return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", fontFamily: T.fontBody, color: T.textMuted }}>Caricamento dati...</div>;
@@ -1508,7 +1518,7 @@ export default function App() {
   }
 
   // Usa activeTeam ovunque al posto di TEAM (per il resto dell'app)
-  const currentTeam = role === "manager" ? activeTeam : [activeTeam.find((t) => t.id === "chiara") || activeTeam[0]];
+  const currentTeam = role === "manager" ? activeTeam : [activeTeam.find((t) => t.id === selectedPerson) || activeTeam[0]];
   const isManager = role === "manager";
   const personObj = activeTeam.find((t) => t.id === selectedPerson) || activeTeam[0];
   const personNotes = notes[personObj?.id] || {};
@@ -1524,12 +1534,13 @@ export default function App() {
   };
 
   const handleEvalChange = (behaviorId, level) => {
-    console.log('Salvando valutazione:', { personId: selectedPerson, behaviorId, level });
+    const pid = personObj?.id || selectedPerson;
+    console.log('Salvando valutazione:', { personId: pid, behaviorId, level });
     // Aggiornamento UI immediato (optimistic)
-    setEvals((prev) => ({ ...prev, [selectedPerson]: { ...prev[selectedPerson], [behaviorId]: level } }));
+    setEvals((prev) => ({ ...prev, [pid]: { ...prev[pid], [behaviorId]: level } }));
     // Persistenza su Supabase
     saveEvaluation({
-      personId: selectedPerson,
+      personId: pid,
       behaviorId,
       level,
       evaluatedBy: "11111111-1111-1111-1111-000000000001", // Laura Bianchi, manager Admin
@@ -1537,12 +1548,13 @@ export default function App() {
   };
 
   const handleEmployeeNote = (behaviorId, text) => {
+    const pid = personObj?.id || selectedPerson;
     const newNote = { id: Date.now(), date: "Oggi", text, author: "employee", level: "on_track" };
     setNotes((prev) => ({
       ...prev,
-      [selectedPerson]: {
-        ...prev[selectedPerson],
-        [behaviorId]: [...(prev[selectedPerson]?.[behaviorId] || []), newNote],
+      [pid]: {
+        ...prev[pid],
+        [behaviorId]: [...(prev[pid]?.[behaviorId] || []), newNote],
       },
     }));
   };
@@ -2058,7 +2070,7 @@ export default function App() {
 
               {BEHAVIORS.filter((b) => b.category === cat).map((behavior) => {
                 const behaviorNotes = personNotes[behavior.id] || [];
-                const currentLevel = evals[selectedPerson]?.[behavior.id];
+                const currentLevel = evals[personObj?.id || selectedPerson]?.[behavior.id];
                 const cfg = currentLevel ? getLevelCfg(currentLevel) : null;
                 const aiInsight = getAIInsight(behaviorNotes);
                 const showCounter = isManager && currentLevel === "training" && hasPositiveHistory(behaviorNotes);
@@ -2179,7 +2191,7 @@ export default function App() {
 
               {BEHAVIORS.filter((b) => b.category === cat).map((behavior) => {
                 const behaviorNotes = personNotes[behavior.id] || [];
-                const currentLevel = evals[selectedPerson]?.[behavior.id];
+                const currentLevel = evals[personObj?.id || selectedPerson]?.[behavior.id];
                 const cfg = currentLevel ? getLevelCfg(currentLevel) : null;
                 const aiInsight = getAIInsight(behaviorNotes);
                 const showCounter = isManager && currentLevel === "training" && hasPositiveHistory(behaviorNotes);
