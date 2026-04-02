@@ -1429,7 +1429,7 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate }) {
   const [teamValidated, setTeamValidated] = useState(false);
   const [role, setRole] = useState("manager");
   const [screen, setScreen] = useState("home");
-  const [selectedPerson, setSelectedPerson] = useState("chiara");
+  const [selectedPerson, setSelectedPerson] = useState(() => TEAM[0]?.id || "chiara");
   const [quickNote, setQuickNote] = useState(false);
   const [quickNoteContext, setQuickNoteContext] = useState<{ person?: string; behavior?: string }>({});
   const [historyOpen, setHistoryOpen] = useState(null);
@@ -1506,7 +1506,7 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate }) {
   }
 
   // Usa activeTeam ovunque al posto di TEAM (per il resto dell'app)
-  const currentTeam = role === "manager" ? activeTeam : [activeTeam.find((t) => t.id === "chiara") || activeTeam[0]];
+  const currentTeam = role === "manager" ? activeTeam : [activeTeam.find((t) => t.id === selectedPerson) || activeTeam[0]];
   const isManager = role === "manager";
   const personObj = activeTeam.find((t) => t.id === selectedPerson) || activeTeam[0];
   const personNotes = notes[personObj?.id] || {};
@@ -1522,7 +1522,8 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate }) {
   };
 
   const handleEvalChange = (behaviorId, level) => {
-    setEvals((prev) => ({ ...prev, [selectedPerson]: { ...prev[selectedPerson], [behaviorId]: level } }));
+    const pid = personObj?.id || selectedPerson;
+    setEvals((prev) => ({ ...prev, [pid]: { ...prev[pid], [behaviorId]: level } }));
   };
 
   const handleEmployeeNote = (behaviorId, text) => {
@@ -2047,7 +2048,7 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate }) {
 
               {BEHAVIORS.filter((b) => b.category === cat).map((behavior) => {
                 const behaviorNotes = personNotes[behavior.id] || [];
-                const currentLevel = evals[selectedPerson]?.[behavior.id];
+                const currentLevel = evals[personObj?.id || selectedPerson]?.[behavior.id];
                 const cfg = currentLevel ? getLevelCfg(currentLevel) : null;
                 const aiInsight = getAIInsight(behaviorNotes);
                 const showCounter = isManager && currentLevel === "training" && hasPositiveHistory(behaviorNotes);
@@ -2168,7 +2169,7 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate }) {
 
               {BEHAVIORS.filter((b) => b.category === cat).map((behavior) => {
                 const behaviorNotes = personNotes[behavior.id] || [];
-                const currentLevel = evals[selectedPerson]?.[behavior.id];
+                const currentLevel = evals[personObj?.id || selectedPerson]?.[behavior.id];
                 const cfg = currentLevel ? getLevelCfg(currentLevel) : null;
                 const aiInsight = getAIInsight(behaviorNotes);
                 const showCounter = isManager && currentLevel === "training" && hasPositiveHistory(behaviorNotes);
