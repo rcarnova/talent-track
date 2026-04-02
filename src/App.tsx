@@ -1454,12 +1454,22 @@ export default function App() {
   const supabaseLoading = teamsLoading || peopleLoading || behaviorsLoading || featuresLoading;
   const supabaseError = teamsError || peopleError || behaviorsError || featuresError;
 
-  // Aggiorna selectedPerson con il primo UUID valido quando i dati Supabase arrivano
+  // Aggiorna selectedPerson e activeTeam con UUID Supabase quando i dati arrivano
   useEffect(() => {
     if (people && !supabaseError) {
-      const firstMember = people.find(p => !p.is_manager);
-      if (firstMember && selectedPerson === "chiara") {
-        setSelectedPerson(firstMember.id);
+      const members = people.filter(p => !p.is_manager).map(p => ({
+        id: p.id,
+        name: p.name,
+        initials: p.name.split(' ').map(n => n[0]).join(''),
+        role: p.role,
+      }));
+      if (members.length > 0) {
+        setActiveTeam(members);
+        setSelectedPerson(prev => {
+          // Se selectedPerson è ancora un ID demo, aggiorna al primo UUID
+          const isDemo = !people.some(p => p.id === prev);
+          return isDemo ? members[0].id : prev;
+        });
       }
     }
   }, [people, supabaseError]);
