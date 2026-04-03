@@ -1132,10 +1132,10 @@ function TeamDashboard({ team, evals, notes, onClose }) {
 }
 
 // ─── TEAM VALIDATION SCREEN ──────────────────────────────────────────────────
-function TeamValidationScreen({ initialSelection, isFirstTime, onValidate }) {
+function TeamValidationScreen({ initialSelection, isFirstTime, onValidate, orgAll }) {
   const [selected, setSelected] = useState(initialSelection || SUGGESTED_TEAM);
   const [showAdd, setShowAdd] = useState(false);
-  const available = ORG_ALL.filter((p) => !selected.includes(p.id));
+  const available = orgAll.filter((p) => !selected.includes(p.id));
 
   const toggle = (id) => {
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
@@ -1227,7 +1227,7 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate }) {
           </span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
-          {ORG_ALL.filter((p) => selected.includes(p.id)).map((person) => (
+          {orgAll.filter((p) => selected.includes(p.id)).map((person) => (
             <div
               key={person.id}
               style={{
@@ -1503,7 +1503,7 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate }) {
   }
 
   const handleTeamValidate = async (selectedIds) => {
-    const validated = ORG_ALL.filter((p) => selectedIds.includes(p.id));
+    const validated = activeTeam.filter((p) => selectedIds.includes(p.id));
     setActiveTeam(validated);
     setTeamValidated(true);
     setHasEverValidated(true);
@@ -1511,7 +1511,7 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate }) {
     if (currentManagerId) {
       await supabase.from("team_confirmations").insert({
         manager_id: currentManagerId,
-        confirmed_team: activeTeam.map(p => p.id),
+        confirmed_team: selectedIds,
       });
     }
   };
@@ -1523,6 +1523,7 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate }) {
         initialSelection={hasEverValidated ? activeTeam.map((p) => p.id) : null}
         isFirstTime={!hasEverValidated}
         onValidate={handleTeamValidate}
+        orgAll={activeTeam}
       />
     );
   }
