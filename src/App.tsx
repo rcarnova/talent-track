@@ -1521,7 +1521,7 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate, orgAl
   if (role === "manager" && !teamValidated) {
     return (
       <TeamValidationScreen
-        initialSelection={hasEverValidated ? activeTeam.map((p) => p.id) : null}
+        initialSelection={hasEverValidated && activeTeam.length > 0 ? activeTeam.map((p) => p.id) : null}
         isFirstTime={!hasEverValidated}
         onValidate={handleTeamValidate}
         orgAll={activeTeam}
