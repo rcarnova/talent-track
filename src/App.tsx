@@ -1505,7 +1505,7 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate, orgAl
 
   const handleTeamValidate = async (selectedIds) => {
     const validated = activeTeam.filter((p) => selectedIds.includes(p.id));
-    setActiveTeam(validated);
+    // setActiveTeam(validated); // rimosso: activeTeam deve restare la lista completa;
     setTeamValidated(true);
     setHasEverValidated(true);
 
