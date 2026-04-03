@@ -1133,7 +1133,7 @@ function TeamDashboard({ team, evals, notes, onClose }) {
 
 // ─── TEAM VALIDATION SCREEN ──────────────────────────────────────────────────
 function TeamValidationScreen({ initialSelection, isFirstTime, onValidate, orgAll }) {
-  const [selected, setSelected] = useState(initialSelection || SUGGESTED_TEAM);
+  const [selected, setSelected] = useState(initialSelection || orgAll.map(p => p.id));
   const [showAdd, setShowAdd] = useState(false);
   const available = orgAll.filter((p) => !selected.includes(p.id));
 
