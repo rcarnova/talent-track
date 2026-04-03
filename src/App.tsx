@@ -1141,7 +1141,7 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate, orgAl
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
-    useEffect(() => { if (selected.length === 0 && orgAll.length > 0 && !initialSelection) { setSelected(orgAll.map(p => p.id)); } }, [orgAll]);
+    useEffect(() => { if (orgAll.length > 0 && (selected.length === 0 || !selected.some(id => orgAll.find(p => p.id === id))) && !initialSelection) { setSelected(orgAll.map(p => p.id)); } }, [orgAll]);
   return (
     <>
       <style>{`
