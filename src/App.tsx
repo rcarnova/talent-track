@@ -1457,7 +1457,7 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate, orgAl
     useEffect(() => {
         supabase
           .from("people")
-          .select("id, name, role")
+          .select("id, name, role, job_title")
           .not("role", "in", '("manager","ceo")')
           .then(({ data }) => {
                   if (data && data.length > 0) {
@@ -1465,7 +1465,7 @@ function TeamValidationScreen({ initialSelection, isFirstTime, onValidate, orgAl
                                         id: p.id,
                                         name: p.name,
                                         initials: p.name.split(' ').map((n: string) => n[0]).join(''),
-                                        role: p.role,
+                                        role: p.job_title || p.role,
                             }));
                             setActiveTeam(members);
                             setSelectedPerson(prev => {
