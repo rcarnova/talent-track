@@ -6,10 +6,9 @@ import "@fontsource/inter/500.css";
 import "@fontsource/inter/600.css";
 import "@fontsource/inter/700.css";
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 const ORG_ALL = [
@@ -635,10 +634,12 @@ export default function App() {
   const [managerPickerVisible, setManagerPickerVisible] = useState(!localStorage.getItem("talent_track_manager_id"));
 
   useEffect(() => {
+    if (!supabase) return;
     supabase.from("people").select("id, name").in("role", ["manager", "ceo"]).then(({ data }) => { if (data) setManagers(data); });
   }, []);
 
   useEffect(() => {
+    if (!supabase) return;
     supabase.from("people").select("id, name, role, job_title").not("role", "in", '("manager","ceo")').then(({ data }) => {
       if (data && data.length > 0) {
         const members = data.map((p) => ({
@@ -690,7 +691,7 @@ export default function App() {
   const handleTeamValidate = async (selectedIds: string[]) => {
     setTeamValidated(true);
     setHasEverValidated(true);
-    if (currentManagerId) {
+    if (currentManagerId && supabase) {
       await supabase.from("team_confirmations").insert({ manager_id: currentManagerId, confirmed_team: selectedIds });
     }
   };
