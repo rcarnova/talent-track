@@ -58,6 +58,14 @@
     --sidebar-accent-foreground: 220 14% 96%;
     --sidebar-border: 220 20% 20%;
     --sidebar-ring: 172 66% 50%;
+
+    /* CVE Brand */
+    --cve-primary: 220 20% 20%;
+    --cve-primary-hover: 220 20% 25%;
+    --cve-neutral-dark: 220 15% 15%;
+    --cve-neutral-light: 220 14% 96%;
+    --cve-surface: 0 0% 100%;
+    --cve-border: 220 13% 91%;
   }
 
   .dark {

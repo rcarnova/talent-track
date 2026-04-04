@@ -9,4 +9,14 @@ import "@fontsource/sora/400.css";
 import "@fontsource/sora/600.css";
 import "@fontsource/sora/700.css";
 
-createRoot(document.getElementById("root")!).render(<App />);
+console.log("[v0] main.tsx loaded, rendering App...");
+
+const rootElement = document.getElementById("root");
+console.log("[v0] Root element:", rootElement);
+
+if (rootElement) {
+  createRoot(rootElement).render(<App />);
+  console.log("[v0] App rendered successfully");
+} else {
+  console.error("[v0] Root element not found!");
+}

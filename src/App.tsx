@@ -616,6 +616,7 @@ function BehaviorCard({ behavior, isManager, currentLevel, behaviorNotes, onEval
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 export default function App() {
+  console.log("[v0] App component rendering...");
   const [teamValidated, setTeamValidated] = useState(false);
   const [role, setRole] = useState("manager");
   const [screen, setScreen] = useState("home");
