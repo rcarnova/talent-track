@@ -1,0 +1,6 @@
+{
+    "rewrites": [
+          { "source": "/talent-track/(.*)", "destination": "/$1" },
+          { "source": "/talent-track", "destination": "/" }
+    ]
+}
