@@ -312,8 +312,6 @@ function PersonDetail({ person, notes, evals, onAddNote, onUpdateEval }: any) {
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 
 export default function App() {
-  console.log("[v0] App component rendering...");
-  
   const [activeTeam] = useState(TEAM);
   const [selectedPerson, setSelectedPerson] = useState(TEAM[0].id);
   const [notes, setNotes] = useState(INITIAL_NOTES);
