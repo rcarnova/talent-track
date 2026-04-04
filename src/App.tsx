@@ -662,6 +662,11 @@ export default function App() {
 
   // Manager picker
   if (managerPickerVisible) {
+    // Se non c'è Supabase o non ci sono managers, mostra opzione demo
+    const displayManagers = managers.length > 0 ? managers : [
+      { id: "demo_manager", name: "Manager Demo" }
+    ];
+    
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-6">
         <div className="max-w-sm w-full">
@@ -673,7 +678,7 @@ export default function App() {
           <h2 className="text-xl font-semibold text-foreground text-center mb-2">Chi sei?</h2>
           <p className="text-muted-foreground text-center mb-8">Seleziona il tuo nome per continuare.</p>
           <div className="space-y-3">
-            {managers.map((m) => (
+            {displayManagers.map((m) => (
               <button
                 key={m.id}
                 onClick={() => handleSelectManager(m.id)}
